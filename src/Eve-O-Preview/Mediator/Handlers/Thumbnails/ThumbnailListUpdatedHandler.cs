@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using EveOPreview.Mediator.Messages.Thumbnails;
-using EveOPreview.Presenters.Implementation;
 using EveOPreview.Presenters.Interface;
 using MediatR;
 
@@ -15,12 +14,12 @@ namespace EveOPreview.Mediator.Handlers.Thumbnails
 
         #endregion
 
-        public ThumbnailListUpdatedHandler(MainFormPresenter presenter)
+        public ThumbnailListUpdatedHandler(IMainFormPresenter presenter)
         {
             _presenter = presenter;
         }
 
-        public Task Handle(ThumbnailListUpdated notification, CancellationToken cancellationToken)
+        public async Task Handle(ThumbnailListUpdated notification, CancellationToken cancellationToken)
         {
             if (notification.Added.Count > 0)
             {
@@ -31,8 +30,9 @@ namespace EveOPreview.Mediator.Handlers.Thumbnails
             {
                 _presenter.RemoveThumbnails(notification.Removed);
             }
-
-            return Task.CompletedTask;
+            
+            // Await any potential asynchronous operations in the future
+            await Task.CompletedTask;
         }
     }
 }

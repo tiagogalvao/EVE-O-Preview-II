@@ -170,7 +170,7 @@ namespace EveOPreview.Presenters.Implementation
             await _mediator.Send(new SaveConfiguration());
         }
 
-        public void AddThumbnails(IList<string> thumbnailTitles)
+        public void AddThumbnails(IReadOnlyList<string> thumbnailTitles)
         {
             var descriptions = new List<IThumbnailDescription>(thumbnailTitles.Count);
             foreach (var title in thumbnailTitles)
@@ -186,7 +186,7 @@ namespace EveOPreview.Presenters.Implementation
             View.AddThumbnails(descriptions);
         }
 
-        public void RemoveThumbnails(IList<string> thumbnailTitles)
+        public void RemoveThumbnails(IReadOnlyList<string> thumbnailTitles)
         {
             var descriptions = new List<IThumbnailDescription>(thumbnailTitles.Count);
             foreach (var title in thumbnailTitles)

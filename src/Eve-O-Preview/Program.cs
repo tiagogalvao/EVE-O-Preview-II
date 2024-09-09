@@ -11,6 +11,7 @@ using EveOPreview.Mediator.Messages.Configuration;
 using EveOPreview.Mediator.Messages.Services;
 using EveOPreview.Mediator.Messages.Thumbnails;
 using EveOPreview.Presenters.Implementation;
+using EveOPreview.Presenters.Interface;
 using EveOPreview.Services.Implementation;
 using EveOPreview.Services.Interface;
 using EveOPreview.View.Implementation;
@@ -44,11 +45,11 @@ namespace EveOPreview
                 .ConfigureServices((context, services) =>
                 {
                     // Register WPF components
-                    services.AddScoped<MainFormPresenter>();
+                    services.AddSingleton<MainFormPresenter>();
 
                     // Singleton registration is used for services
                     // Low-level services
-                    // services.AddScoped<IApplicationController, ApplicationController>();
+                    services.AddSingleton<IMainFormPresenter, MainFormPresenter>();
                     services.AddSingleton<IWindowManager, WindowManager>();
                     services.AddSingleton<IProcessMonitor, ProcessMonitor>();
                     services.AddScoped<IMainFormView, MainForm>();

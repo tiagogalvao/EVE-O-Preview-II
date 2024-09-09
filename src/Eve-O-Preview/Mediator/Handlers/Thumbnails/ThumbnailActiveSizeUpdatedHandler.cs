@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using EveOPreview.Mediator.Messages.Thumbnails;
-using EveOPreview.Presenters.Implementation;
 using EveOPreview.Presenters.Interface;
 using MediatR;
 
@@ -11,7 +10,7 @@ namespace EveOPreview.Mediator.Handlers.Thumbnails
     {
         private readonly IMainFormPresenter _presenter;
 
-        public ThumbnailActiveSizeUpdatedHandler(MainFormPresenter presenter)
+        public ThumbnailActiveSizeUpdatedHandler(IMainFormPresenter presenter)
         {
             _presenter = presenter;
         }

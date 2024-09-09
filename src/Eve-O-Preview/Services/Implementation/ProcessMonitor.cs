@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using EveOPreview.Services.Interface;
 
 namespace EveOPreview.Services.Implementation;
@@ -9,19 +10,13 @@ namespace EveOPreview.Services.Implementation;
 internal sealed class ProcessMonitor : IProcessMonitor
 {
     private const string DEFAULT_PROCESS_NAME = "ExeFile";
-    private readonly ConcurrentDictionary<nint, string> _processCache;
-    private IProcessInfo _currentProcessInfo;
+    private readonly ConcurrentDictionary<nint, string> _processCache = new();
+    private IProcessInfo _currentProcessInfo = new ProcessInfo(nint.Zero, string.Empty);
 
-    public ProcessMonitor()
-    {
-        _processCache = new ConcurrentDictionary<nint, string>();
-        _currentProcessInfo = new ProcessInfo(nint.Zero, string.Empty);
-    }
-
-    private bool IsMonitoredProcess(string processName) =>
+    private static bool IsMonitoredProcess(string processName) =>
         string.Equals(processName, DEFAULT_PROCESS_NAME, StringComparison.OrdinalIgnoreCase);
 
-    private IProcessInfo GetCurrentProcessInfo()
+    private static IProcessInfo GetCurrentProcessInfo()
     {
         using var currentProcess = Process.GetCurrentProcess();
         return new ProcessInfo(currentProcess.MainWindowHandle, currentProcess.MainWindowTitle);
@@ -58,35 +53,34 @@ internal sealed class ProcessMonitor : IProcessMonitor
         updatedProcesses = new List<IProcessInfo>();
         removedProcesses = new List<IProcessInfo>();
 
-        var knownProcesses = new HashSet<nint>(_processCache.Keys);
-        foreach (var process in Process.GetProcesses())
+        var currentProcesses = Process.GetProcesses()
+            .Where(p => IsMonitoredProcess(p.ProcessName) && p.MainWindowHandle != nint.Zero);
+
+        var knownHandles = new HashSet<nint>(_processCache.Keys);
+
+        foreach (var process in currentProcesses)
         {
-            if (!IsMonitoredProcess(process.ProcessName) || process.MainWindowHandle == nint.Zero)
-            {
-                continue;
-            }
+            var handle = process.MainWindowHandle;
+            var title = process.MainWindowTitle;
 
-            var mainWindowHandle = process.MainWindowHandle;
-            var mainWindowTitle = process.MainWindowTitle;
-
-            if (_processCache.TryGetValue(mainWindowHandle, out var cachedTitle))
+            if (_processCache.TryGetValue(handle, out var cachedTitle))
             {
-                if (!string.Equals(cachedTitle, mainWindowTitle))
+                if (!string.Equals(cachedTitle, title, StringComparison.Ordinal))
                 {
-                    _processCache[mainWindowHandle] = mainWindowTitle;
-                    updatedProcesses.Add(new ProcessInfo(mainWindowHandle, mainWindowTitle));
+                    _processCache[handle] = title;
+                    updatedProcesses.Add(new ProcessInfo(handle, title));
                 }
 
-                knownProcesses.Remove(mainWindowHandle);
+                knownHandles.Remove(handle);
             }
             else
             {
-                _processCache.TryAdd(mainWindowHandle, mainWindowTitle);
-                addedProcesses.Add(new ProcessInfo(mainWindowHandle, mainWindowTitle));
+                _processCache.TryAdd(handle, title);
+                addedProcesses.Add(new ProcessInfo(handle, title));
             }
         }
 
-        foreach (var handle in knownProcesses)
+        foreach (var handle in knownHandles)
         {
             if (_processCache.TryRemove(handle, out var title))
             {

@@ -5,8 +5,8 @@ namespace EveOPreview.Presenters.Interface
 {
     interface IMainFormPresenter
     {
-        void AddThumbnails(IList<string> thumbnailTitles);
-        void RemoveThumbnails(IList<string> thumbnailTitles);
+        void AddThumbnails(IReadOnlyList<string> thumbnailTitles);
+        void RemoveThumbnails(IReadOnlyList<string> thumbnailTitles);
         void UpdateThumbnailSize(Size size);
     }
 }
