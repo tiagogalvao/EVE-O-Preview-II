@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using EveOPreview.ApplicationBase.Interface;
 using EveOPreview.Core.Action;
 using EveOPreview.Core.Configuration;
@@ -51,9 +52,9 @@ namespace EveOPreview.View.Interface
         Action FormActivated { get; set; }
         Action FormMinimized { get; set; }
         Action<ViewCloseRequest> FormCloseRequested { get; set; }
-        Action ApplicationSettingsChanged { get; set; }
-        Action ThumbnailsSizeChanged { get; set; }
-        Action<string> ThumbnailStateChanged { get; set; }
+        Func<Task> ApplicationSettingsChanged { get; set; }
+        Func<Task> ThumbnailsSizeChanged { get; set; }
+        Func<string, Task> ThumbnailStateChanged { get; set; }
         Action DocumentationLinkActivated { get; set; }
     }
 }

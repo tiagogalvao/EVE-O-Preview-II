@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using EveOPreview.Core.Action;
 using EveOPreview.Core.Configuration;
@@ -261,19 +262,12 @@ namespace EveOPreview.View.Implementation
         }
 
         public Action ApplicationExitRequested { get; set; }
-
         public Action FormActivated { get; set; }
-
         public Action FormMinimized { get; set; }
-
         public Action<ViewCloseRequest> FormCloseRequested { get; set; }
-
-        public Action ApplicationSettingsChanged { get; set; }
-
-        public Action ThumbnailsSizeChanged { get; set; }
-
-        public Action<string> ThumbnailStateChanged { get; set; }
-
+        public Func<Task> ApplicationSettingsChanged { get; set; }
+        public Func<Task> ThumbnailsSizeChanged { get; set; }
+        public Func<string, Task> ThumbnailStateChanged { get; set; }
         public Action DocumentationLinkActivated { get; set; }
 
         #region UI events

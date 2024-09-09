@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Drawing;
 using EveOPreview.Configuration.Interface;
@@ -12,6 +12,8 @@ using EveOPreview.Presenters.Interface;
 using EveOPreview.View.Implementation;
 using EveOPreview.View.Interface;
 using MediatR;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EveOPreview.Presenters.Implementation
 {
@@ -19,8 +21,8 @@ namespace EveOPreview.Presenters.Implementation
     {
         #region Private constants
 
-        private const string VERSION = "7.1.2-alpha";
-        private const string FORUM_URL = @"https://forums.eveonline.com/t/eve-o-preview-v5-1-2-fork-multi-client-preview-switcher-2022-05-09-limited-linux-support/361804";
+        private static readonly string Version = "7.1.2-alpha";
+        private static readonly Uri ForumUrl = new("https://forums.eveonline.com/t/eve-o-preview-v5-1-2-fork-multi-client-preview-switcher-2022-05-09-limited-linux-support/361804");
 
         #endregion
 
@@ -29,8 +31,8 @@ namespace EveOPreview.Presenters.Implementation
         private readonly IMediator _mediator;
         private readonly IThumbnailConfiguration _configuration;
         private readonly IStorage _configurationStorage;
-        private readonly IDictionary<string, IThumbnailDescription> _descriptionsCache;
-        
+        private readonly ConcurrentDictionary<string, IThumbnailDescription> _descriptionsCache;
+
         private bool _suppressSizeNotifications;
         private bool _exitApplication;
 
@@ -43,7 +45,7 @@ namespace EveOPreview.Presenters.Implementation
             _configuration = configuration;
             _configurationStorage = configurationStorage;
 
-            _descriptionsCache = new Dictionary<string, IThumbnailDescription>();
+            _descriptionsCache = new ConcurrentDictionary<string, IThumbnailDescription>();
 
             _suppressSizeNotifications = false;
             _exitApplication = false;
@@ -62,8 +64,9 @@ namespace EveOPreview.Presenters.Implementation
         {
             _suppressSizeNotifications = true;
             LoadApplicationSettings();
-            View.SetDocumentationUrl(FORUM_URL);
+            View.SetDocumentationUrl(ForumUrl.AbsoluteUri);
             View.SetVersionInfo(GetApplicationVersion());
+
             if (_configuration.MinimizeToTray)
             {
                 View.Minimize();
@@ -75,23 +78,18 @@ namespace EveOPreview.Presenters.Implementation
 
         private void Minimize()
         {
-            if (!_configuration.MinimizeToTray)
-            {
-                return;
-            }
-
+            if (!_configuration.MinimizeToTray) return;
             View.Hide();
         }
 
-        private void Close(ViewCloseRequest request)
+        private async void Close(ViewCloseRequest request)
         {
             if (_exitApplication || !View.MinimizeToTray)
             {
-                _mediator.Send(new StopService()).Wait();
-
+                await _mediator.Send(new StopService());
                 _configurationStorage.Save();
                 request.Allow = true;
-                Environment.Exit(0); // TODO: umm.... check later
+                Environment.Exit(0);
                 return;
             }
 
@@ -99,7 +97,7 @@ namespace EveOPreview.Presenters.Implementation
             View.Minimize();
         }
 
-        private async void UpdateThumbnailsSize()
+        private async Task UpdateThumbnailsSize()
         {
             if (!_suppressSizeNotifications)
             {
@@ -113,9 +111,7 @@ namespace EveOPreview.Presenters.Implementation
             _configurationStorage.Load();
 
             View.MinimizeToTray = _configuration.MinimizeToTray;
-
             View.ThumbnailOpacity = _configuration.ThumbnailOpacity;
-
             View.EnableClientLayoutTracking = _configuration.EnableClientLayoutTracking;
             View.HideActiveClientThumbnail = _configuration.HideActiveClientThumbnail;
             View.MinimizeInactiveClients = _configuration.MinimizeInactiveClients;
@@ -137,10 +133,9 @@ namespace EveOPreview.Presenters.Implementation
             View.ActiveClientHighlightColor = _configuration.ActiveClientHighlightColor;
         }
 
-        private async void SaveApplicationSettings()
+        private async Task SaveApplicationSettings()
         {
             _configuration.MinimizeToTray = View.MinimizeToTray;
-
             _configuration.ThumbnailOpacity = (float)View.ThumbnailOpacity;
 
             _configuration.EnableClientLayoutTracking = View.EnableClientLayoutTracking;
@@ -158,6 +153,7 @@ namespace EveOPreview.Presenters.Implementation
             _configuration.ThumbnailZoomAnchor = View.ThumbnailZoomAnchor;
 
             _configuration.ShowThumbnailOverlays = View.ShowThumbnailOverlays;
+
             if (_configuration.ShowThumbnailFrames != View.ShowThumbnailFrames)
             {
                 _configuration.ShowThumbnailFrames = View.ShowThumbnailFrames;
@@ -168,43 +164,33 @@ namespace EveOPreview.Presenters.Implementation
             _configuration.ActiveClientHighlightColor = View.ActiveClientHighlightColor;
 
             _configurationStorage.Save();
-
             View.RefreshZoomSettings();
-
             await _mediator.Send(new SaveConfiguration());
         }
 
         public void AddThumbnails(IList<string> thumbnailTitles)
         {
-            IList<IThumbnailDescription> descriptions = new List<IThumbnailDescription>(thumbnailTitles.Count);
-            lock (_descriptionsCache)
+            var descriptions = new List<IThumbnailDescription>(thumbnailTitles.Count);
+            foreach (var title in thumbnailTitles)
             {
-                foreach (string title in thumbnailTitles)
+                if (!_descriptionsCache.ContainsKey(title))
                 {
-                    if (!_descriptionsCache.ContainsKey(title))
-                    {
-                        IThumbnailDescription description = CreateThumbnailDescription(title);
-                        _descriptionsCache[title] = description;
-
-                        descriptions.Add(description);
-                    }
+                    var description = CreateThumbnailDescription(title);
+                    _descriptionsCache[title] = description;
+                    descriptions.Add(description);
                 }
             }
+
             View.AddThumbnails(descriptions);
         }
 
         public void RemoveThumbnails(IList<string> thumbnailTitles)
         {
-            IList<IThumbnailDescription> descriptions = new List<IThumbnailDescription>(thumbnailTitles.Count);
-            lock (_descriptionsCache)
+            var descriptions = new List<IThumbnailDescription>(thumbnailTitles.Count);
+            foreach (var title in thumbnailTitles)
             {
-                foreach (string title in thumbnailTitles)
+                if (_descriptionsCache.TryRemove(title, out var description))
                 {
-                    if (!_descriptionsCache.Remove(title, out IThumbnailDescription description))
-                    {
-                        continue;
-                    }
-
                     descriptions.Add(description);
                 }
             }
@@ -212,15 +198,12 @@ namespace EveOPreview.Presenters.Implementation
             View.RemoveThumbnails(descriptions);
         }
 
-        private IThumbnailDescription CreateThumbnailDescription(string title)
-        {
-            bool isDisabled = _configuration.IsThumbnailDisabled(title);
-            return new ThumbnailDescription(title, isDisabled);
-        }
+        private IThumbnailDescription CreateThumbnailDescription(string title) =>
+            new ThumbnailDescription(title, _configuration.IsThumbnailDisabled(title));
 
-        private async void UpdateThumbnailState(string title)
+        private async Task UpdateThumbnailState(string title)
         {
-            if (_descriptionsCache.TryGetValue(title, out IThumbnailDescription description))
+            if (_descriptionsCache.TryGetValue(title, out var description))
             {
                 _configuration.ToggleThumbnail(title, description.IsDisabled);
             }
@@ -237,20 +220,15 @@ namespace EveOPreview.Presenters.Implementation
 
         private void OpenDocumentationLink()
         {
-            // TODO Move out to a separate service / presenter / message handler
             var documentationPsi = new ProcessStartInfo
             {
-                FileName = new Uri(FORUM_URL).AbsoluteUri,
+                FileName = ForumUrl.AbsoluteUri,
                 UseShellExecute = true
             };
             Process.Start(documentationPsi);
         }
 
-        private string GetApplicationVersion()
-        {
-            //TODO: Check why version is not being read properly
-            return VERSION;
-        }
+        private string GetApplicationVersion() => Version;
 
         private void ExitApplication()
         {
