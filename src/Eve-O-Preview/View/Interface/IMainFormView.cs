@@ -51,7 +51,8 @@ namespace EveOPreview.View.Interface
         Action ApplicationExitRequested { get; set; }
         Action FormActivated { get; set; }
         Action FormMinimized { get; set; }
-        Action<ViewCloseRequest> FormCloseRequested { get; set; }
+
+        Func<ViewCloseRequest, Task> FormCloseRequested { get; set; }
         Func<Task> ApplicationSettingsChanged { get; set; }
         Func<Task> ThumbnailsSizeChanged { get; set; }
         Func<string, Task> ThumbnailStateChanged { get; set; }

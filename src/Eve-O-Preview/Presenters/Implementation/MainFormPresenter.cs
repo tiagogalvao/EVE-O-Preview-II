@@ -9,11 +9,11 @@ using EveOPreview.Mediator.Messages.Configuration;
 using EveOPreview.Mediator.Messages.Services;
 using EveOPreview.Mediator.Messages.Thumbnails;
 using EveOPreview.Presenters.Interface;
-using EveOPreview.View.Implementation;
 using EveOPreview.View.Interface;
 using MediatR;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using EveOPreview.View.Implementation;
 
 namespace EveOPreview.Presenters.Implementation
 {
@@ -31,24 +31,23 @@ namespace EveOPreview.Presenters.Implementation
         private readonly IMediator _mediator;
         private readonly IThumbnailConfiguration _configuration;
         private readonly IStorage _configurationStorage;
-        private readonly ConcurrentDictionary<string, IThumbnailDescription> _descriptionsCache;
+        private readonly ConcurrentDictionary<string, IThumbnailDescription> _descriptionsCache = new();
 
         private bool _suppressSizeNotifications;
         private bool _exitApplication;
 
         #endregion
 
-        public MainFormPresenter(IMainFormView view, IMediator mediator, IThumbnailConfiguration configuration, IStorage configurationStorage)
+        public MainFormPresenter(
+            IMainFormView view,
+            IMediator mediator,
+            IThumbnailConfiguration configuration,
+            IStorage configurationStorage)
             : base(view)
         {
             _mediator = mediator;
             _configuration = configuration;
             _configurationStorage = configurationStorage;
-
-            _descriptionsCache = new ConcurrentDictionary<string, IThumbnailDescription>();
-
-            _suppressSizeNotifications = false;
-            _exitApplication = false;
 
             View.FormActivated = Activate;
             View.FormMinimized = Minimize;
@@ -78,11 +77,13 @@ namespace EveOPreview.Presenters.Implementation
 
         private void Minimize()
         {
-            if (!_configuration.MinimizeToTray) return;
-            View.Hide();
+            if (_configuration.MinimizeToTray)
+            {
+                View.Hide();
+            }
         }
 
-        private async void Close(ViewCloseRequest request)
+        private async Task Close(ViewCloseRequest request)
         {
             if (_exitApplication || !View.MinimizeToTray)
             {
@@ -90,11 +91,12 @@ namespace EveOPreview.Presenters.Implementation
                 _configurationStorage.Save();
                 request.Allow = true;
                 Environment.Exit(0);
-                return;
             }
-
-            request.Allow = false;
-            View.Minimize();
+            else
+            {
+                request.Allow = false;
+                View.Minimize();
+            }
         }
 
         private async Task UpdateThumbnailsSize()
