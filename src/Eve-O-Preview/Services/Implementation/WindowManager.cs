@@ -21,13 +21,13 @@ namespace EveOPreview.Services.Implementation
         {
             var osVersion = Environment.OSVersion.Version;
             return (osVersion.Major == 6 && osVersion.Minor >= 2) // Windows 8, 8.1
-                || osVersion.Major >= 10                         // Windows 10+
-                || DWM_NATIVE_METHODS.DwmIsCompositionEnabled();  // Windows 7 fallback
+                   || osVersion.Major >= 10 // Windows 10+
+                   || DWM_NATIVE_METHODS.DwmIsCompositionEnabled(); // Windows 7 fallback
         }
 
-        public IntPtr GetForegroundWindowHandle() => USER32_NATIVE_METHODS.GetForegroundWindow();
+        public nint GetForegroundWindowHandle() => USER32_NATIVE_METHODS.GetForegroundWindow();
 
-        public void ActivateWindow(IntPtr handle)
+        public void ActivateWindow(nint handle)
         {
             USER32_NATIVE_METHODS.SetForegroundWindow(handle);
             int style = USER32_NATIVE_METHODS.GetWindowLong(handle, InteropConstants.GWL_STYLE);
@@ -38,7 +38,7 @@ namespace EveOPreview.Services.Implementation
             }
         }
 
-        public void MinimizeWindow(IntPtr handle, bool enableAnimation)
+        public void MinimizeWindow(nint handle, bool enableAnimation)
         {
             if (enableAnimation)
             {
@@ -50,36 +50,36 @@ namespace EveOPreview.Services.Implementation
             }
         }
 
-        public void MaximizeWindow(IntPtr handle)
+        public void MaximizeWindow(nint handle)
         {
             USER32_NATIVE_METHODS.ShowWindowAsync(handle, InteropConstants.SW_SHOWMAXIMIZED);
         }
 
-        public void MoveWindow(IntPtr handle, int left, int top, int width, int height)
+        public void MoveWindow(nint handle, int left, int top, int width, int height)
         {
             USER32_NATIVE_METHODS.MoveWindow(handle, left, top, width, height, true);
         }
 
-        public (int Left, int Top, int Right, int Bottom) GetWindowPosition(IntPtr handle)
+        public (int Left, int Top, int Right, int Bottom) GetWindowPosition(nint handle)
         {
             USER32_NATIVE_METHODS.GetWindowRect(handle, out RECT rect);
             return (rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
 
-        public bool IsWindowMaximized(IntPtr handle) => USER32_NATIVE_METHODS.IsZoomed(handle);
+        public bool IsWindowMaximized(nint handle) => USER32_NATIVE_METHODS.IsZoomed(handle);
 
-        public bool IsWindowMinimized(IntPtr handle) => USER32_NATIVE_METHODS.IsIconic(handle);
+        public bool IsWindowMinimized(nint handle) => USER32_NATIVE_METHODS.IsIconic(handle);
 
-        public IDwmThumbnail GetLiveThumbnail(IntPtr destination, IntPtr source)
+        public IDwmThumbnail GetLiveThumbnail(nint destination, nint source)
         {
             var thumbnail = new DwmThumbnail(this);
             thumbnail.Register(destination, source);
             return thumbnail;
         }
 
-        public Image GetStaticThumbnail(IntPtr source)
+        public Image? GetStaticThumbnail(nint source)
         {
-            IntPtr sourceContext = USER32_NATIVE_METHODS.GetDC(source);
+            nint sourceContext = USER32_NATIVE_METHODS.GetDC(source);
 
             USER32_NATIVE_METHODS.GetClientRect(source, out RECT windowRect);
             int width = windowRect.Right - windowRect.Left;
@@ -91,10 +91,10 @@ namespace EveOPreview.Services.Implementation
                 return null;
             }
 
-            IntPtr destContext = GDI32_NATIVE_METHODS.CreateCompatibleDC(sourceContext);
-            IntPtr bitmap = GDI32_NATIVE_METHODS.CreateCompatibleBitmap(sourceContext, width, height);
+            nint destContext = GDI32_NATIVE_METHODS.CreateCompatibleDC(sourceContext);
+            nint bitmap = GDI32_NATIVE_METHODS.CreateCompatibleBitmap(sourceContext, width, height);
 
-            IntPtr oldBitmap = GDI32_NATIVE_METHODS.SelectObject(destContext, bitmap);
+            nint oldBitmap = GDI32_NATIVE_METHODS.SelectObject(destContext, bitmap);
             GDI32_NATIVE_METHODS.BitBlt(destContext, 0, 0, width, height, sourceContext, 0, 0, GDI32_NATIVE_METHODS.SRCCOPY);
             GDI32_NATIVE_METHODS.SelectObject(destContext, oldBitmap);
 
@@ -103,13 +103,12 @@ namespace EveOPreview.Services.Implementation
 
             Image image = Image.FromHbitmap(bitmap);
             GDI32_NATIVE_METHODS.DeleteObject(bitmap); // Properly delete the bitmap handle to avoid leaks
-
             return image;
         }
 
-        private static void AdjustWindowPlacement(IntPtr handle, int command)
+        private static void AdjustWindowPlacement(nint handle, int command)
         {
-            WINDOWPLACEMENT placement = new WINDOWPLACEMENT
+            var placement = new WINDOWPLACEMENT
             {
                 length = Marshal.SizeOf<WINDOWPLACEMENT>()
             };

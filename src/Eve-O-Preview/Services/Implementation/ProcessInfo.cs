@@ -1,17 +1,5 @@
-﻿using System;
-using EveOPreview.Services.Interface;
+﻿using EveOPreview.Services.Interface;
 
-namespace EveOPreview.Services.Implementation
-{
-	internal sealed class ProcessInfo : IProcessInfo
-	{
-		public ProcessInfo(IntPtr handle, string title)
-		{
-			Handle = handle;
-			Title = title;
-		}
+namespace EveOPreview.Services.Implementation;
 
-		public IntPtr Handle { get; }
-		public string Title { get; }
-	}
-}
+internal sealed record ProcessInfo(nint Handle, string Title) : IProcessInfo;

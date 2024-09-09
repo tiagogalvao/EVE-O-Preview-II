@@ -34,13 +34,13 @@ namespace EveOPreview.Services.Implementation
         private readonly IThumbnailConfiguration _configuration;
         private readonly DispatcherTimer _thumbnailUpdateTimer;
         private readonly IThumbnailViewFactory _thumbnailViewFactory;
-        private readonly Dictionary<IntPtr, IThumbnailView> _thumbnailViews;
+        private readonly Dictionary<nint, IThumbnailView> _thumbnailViews;
 
-        private (IntPtr Handle, string Title) _activeClient;
-        private IntPtr _externalApplication;
+        private (nint Handle, string Title) _activeClient;
+        private nint _externalApplication;
 
         private readonly object _locationChangeNotificationSyncRoot;
-        private (IntPtr Handle, string Title, string ActiveClient, Point Location, int Delay) _enqueuedLocationChangeNotification;
+        private (nint Handle, string Title, string ActiveClient, Point Location, int Delay) _enqueuedLocationChangeNotification;
 
         private bool _ignoreViewEvents;
         private bool _isHoverEffectActive;
@@ -58,16 +58,16 @@ namespace EveOPreview.Services.Implementation
             _configuration = configuration;
             _thumbnailViewFactory = factory;
 
-            _activeClient = (IntPtr.Zero, DEFAULT_CLIENT_TITLE);
+            _activeClient = (nint.Zero, DEFAULT_CLIENT_TITLE);
 
             EnableViewEvents();
             _isHoverEffectActive = false;
 
             _refreshCycleCount = 0;
             _locationChangeNotificationSyncRoot = new object();
-            _enqueuedLocationChangeNotification = (IntPtr.Zero, null, null, Point.Empty, -1);
+            _enqueuedLocationChangeNotification = (nint.Zero, null, null, Point.Empty, -1);
 
-            _thumbnailViews = new Dictionary<IntPtr, IThumbnailView>();
+            _thumbnailViews = new Dictionary<nint, IThumbnailView>();
 
             //  DispatcherTimer setup
             _thumbnailUpdateTimer = new DispatcherTimer();
@@ -188,11 +188,11 @@ namespace EveOPreview.Services.Implementation
         private void RefreshThumbnails()
         {
             // TODO Split this method
-            IntPtr foregroundWindowHandle = _windowManager.GetForegroundWindowHandle();
+            nint foregroundWindowHandle = _windowManager.GetForegroundWindowHandle();
 
             // The foreground window can be NULL in certain circumstances, such as when a window is losing activation.
             // It is safer to just skip this refresh round than to do something while the system state is undefined
-            if (foregroundWindowHandle == IntPtr.Zero)
+            if (foregroundWindowHandle == nint.Zero)
             {
                 return;
             }
@@ -275,7 +275,7 @@ namespace EveOPreview.Services.Implementation
             }
 
             // Hide, show, resize and move
-            foreach (KeyValuePair<IntPtr, IThumbnailView> entry in _thumbnailViews)
+            foreach (KeyValuePair<nint, IThumbnailView> entry in _thumbnailViews)
             {
                 IThumbnailView view = entry.Value;
 
@@ -339,7 +339,7 @@ namespace EveOPreview.Services.Implementation
         {
             DisableViewEvents();
 
-            foreach (KeyValuePair<IntPtr, IThumbnailView> entry in _thumbnailViews)
+            foreach (KeyValuePair<nint, IThumbnailView> entry in _thumbnailViews)
             {
                 entry.Value.ThumbnailSize = size;
                 entry.Value.Refresh(false);
@@ -352,7 +352,7 @@ namespace EveOPreview.Services.Implementation
         {
             DisableViewEvents();
 
-            foreach (KeyValuePair<IntPtr, IThumbnailView> entry in _thumbnailViews)
+            foreach (KeyValuePair<nint, IThumbnailView> entry in _thumbnailViews)
             {
                 entry.Value.SetFrames(_configuration.ShowThumbnailFrames);
             }
@@ -370,7 +370,7 @@ namespace EveOPreview.Services.Implementation
             _ignoreViewEvents = true;
         }
 
-        private void SwitchActiveClient(IntPtr foregroundClientHandle, string foregroundClientTitle)
+        private void SwitchActiveClient(nint foregroundClientHandle, string foregroundClientTitle)
         {
             // Check if any actions are needed
             if (_activeClient.Handle == foregroundClientHandle)
@@ -387,7 +387,7 @@ namespace EveOPreview.Services.Implementation
             _activeClient = (foregroundClientHandle, foregroundClientTitle);
         }
 
-        private void ThumbnailViewFocused(IntPtr id)
+        private void ThumbnailViewFocused(nint id)
         {
             if (_isHoverEffectActive)
             {
@@ -407,7 +407,7 @@ namespace EveOPreview.Services.Implementation
             }
         }
 
-        private void ThumbnailViewLostFocus(IntPtr id)
+        private void ThumbnailViewLostFocus(nint id)
         {
             if (!_isHoverEffectActive)
             {
@@ -426,7 +426,7 @@ namespace EveOPreview.Services.Implementation
             _isHoverEffectActive = false;
         }
 
-        private void ThumbnailActivated(IntPtr id)
+        private void ThumbnailActivated(nint id)
         {
             IThumbnailView view = _thumbnailViews[id];
 
@@ -440,7 +440,7 @@ namespace EveOPreview.Services.Implementation
                 }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
-        private void ThumbnailDeactivated(IntPtr id, bool switchOut)
+        private void ThumbnailDeactivated(nint id, bool switchOut)
         {
             if (switchOut)
             {
@@ -458,7 +458,7 @@ namespace EveOPreview.Services.Implementation
             }
         }
 
-        private async void ThumbnailViewResized(IntPtr id)
+        private async void ThumbnailViewResized(nint id)
         {
             if (_ignoreViewEvents)
             {
@@ -474,7 +474,7 @@ namespace EveOPreview.Services.Implementation
             await _mediator.Publish(new ThumbnailActiveSizeUpdated(view.ThumbnailSize));
         }
 
-        private void ThumbnailViewMoved(IntPtr id)
+        private void ThumbnailViewMoved(nint id)
         {
             if (_ignoreViewEvents)
             {
@@ -487,14 +487,14 @@ namespace EveOPreview.Services.Implementation
         }
 
         // Checks whether currently active window belongs to an EVE client or its thumbnail
-        private bool IsClientWindowActive(IntPtr windowHandle)
+        private bool IsClientWindowActive(nint windowHandle)
         {
-            if (windowHandle == IntPtr.Zero)
+            if (windowHandle == nint.Zero)
             {
                 return false;
             }
 
-            foreach (KeyValuePair<IntPtr, IThumbnailView> entry in _thumbnailViews)
+            foreach (KeyValuePair<nint, IThumbnailView> entry in _thumbnailViews)
             {
                 IThumbnailView view = entry.Value;
 
@@ -508,7 +508,7 @@ namespace EveOPreview.Services.Implementation
         }
 
         // Check whether the currently active window belongs to EVE-O Preview itself
-        private bool IsMainWindowActive(IntPtr windowHandle)
+        private bool IsMainWindowActive(nint windowHandle)
         {
             return (_processMonitor.GetMainProcess().Handle == windowHandle);
         }
@@ -615,7 +615,7 @@ namespace EveOPreview.Services.Implementation
             return (0, 0);
         }
 
-        private void ApplyClientLayout(IntPtr clientHandle, string clientTitle)
+        private void ApplyClientLayout(nint clientHandle, string clientTitle)
         {
             if (!_configuration.EnableClientLayoutTracking)
             {
@@ -652,7 +652,7 @@ namespace EveOPreview.Services.Implementation
                 return;
             }
 
-            foreach (KeyValuePair<IntPtr, IThumbnailView> entry in _thumbnailViews)
+            foreach (KeyValuePair<nint, IThumbnailView> entry in _thumbnailViews)
             {
                 IThumbnailView view = entry.Value;
 
@@ -683,7 +683,7 @@ namespace EveOPreview.Services.Implementation
 
             lock (_locationChangeNotificationSyncRoot)
             {
-                if (_enqueuedLocationChangeNotification.Handle == IntPtr.Zero)
+                if (_enqueuedLocationChangeNotification.Handle == nint.Zero)
                 {
                     _enqueuedLocationChangeNotification = (view.Id, view.Title, activeClientTitle, view.ThumbnailLocation, DEFAULT_LOCATION_CHANGE_NOTIFICATION_DELAY);
                     return;
@@ -702,13 +702,13 @@ namespace EveOPreview.Services.Implementation
             }
         }
 
-        private bool TryDequeueLocationChange(out (IntPtr Handle, string Title, string ActiveClient, Point Location) change)
+        private bool TryDequeueLocationChange(out (nint Handle, string Title, string ActiveClient, Point Location) change)
         {
             lock (_locationChangeNotificationSyncRoot)
             {
-                change = (IntPtr.Zero, null, null, Point.Empty);
+                change = (nint.Zero, null, null, Point.Empty);
 
-                if (_enqueuedLocationChangeNotification.Handle == IntPtr.Zero)
+                if (_enqueuedLocationChangeNotification.Handle == nint.Zero)
                 {
                     return false;
                 }
@@ -721,7 +721,7 @@ namespace EveOPreview.Services.Implementation
                 }
 
                 change = (_enqueuedLocationChangeNotification.Handle, _enqueuedLocationChangeNotification.Title, _enqueuedLocationChangeNotification.ActiveClient, _enqueuedLocationChangeNotification.Location);
-                _enqueuedLocationChangeNotification = (IntPtr.Zero, null, null, Point.Empty, -1);
+                _enqueuedLocationChangeNotification = (nint.Zero, null, null, Point.Empty, -1);
 
                 return true;
             }

@@ -4,104 +4,97 @@ using EveOPreview.Core.Internal.Interop.Windows;
 using EveOPreview.Services.Interface;
 using EveOPreview.Services.Interop;
 
-namespace EveOPreview.Services.Implementation
+namespace EveOPreview.Services.Implementation;
+
+internal sealed class DwmThumbnail : IDwmThumbnail
 {
-    internal sealed class DwmThumbnail : IDwmThumbnail
+    private readonly IWindowManager _windowManager;
+    private nint _handle;
+    private readonly DWM_THUMBNAIL_PROPERTIES _properties;
+
+    public DwmThumbnail(IWindowManager windowManager)
     {
-        #region Private fields
-
-        private readonly IWindowManager _windowManager;
-        private IntPtr _handle;
-        private DWM_THUMBNAIL_PROPERTIES _properties;
-
-        #endregion
-
-        public DwmThumbnail(IWindowManager windowManager)
+        _windowManager = windowManager ?? throw new ArgumentNullException(nameof(windowManager));
+        _handle = nint.Zero;
+        _properties = new DWM_THUMBNAIL_PROPERTIES
         {
-            _windowManager = windowManager;
-            _handle = IntPtr.Zero;
+            dwFlags = DWM_TNP_CONSTANTS.DWM_TNP_VISIBLE
+                      | DWM_TNP_CONSTANTS.DWM_TNP_OPACITY
+                      | DWM_TNP_CONSTANTS.DWM_TNP_RECTDESTINATION
+                      | DWM_TNP_CONSTANTS.DWM_TNP_SOURCECLIENTAREAONLY,
+            opacity = 255,
+            fVisible = true,
+            fSourceClientAreaOnly = true
+        };
+    }
+
+    public void Register(nint destination, nint source)
+    {
+        if (!_windowManager.IsCompositionEnabled)
+        {
+            return;
         }
 
-        public void Register(IntPtr destination, IntPtr source)
+        try
         {
-            _properties = new DWM_THUMBNAIL_PROPERTIES();
-            _properties.dwFlags = DWM_TNP_CONSTANTS.DWM_TNP_VISIBLE
-                                       + DWM_TNP_CONSTANTS.DWM_TNP_OPACITY
-                                       + DWM_TNP_CONSTANTS.DWM_TNP_RECTDESTINATION
-                                       + DWM_TNP_CONSTANTS.DWM_TNP_SOURCECLIENTAREAONLY;
-            _properties.opacity = 255;
-            _properties.fVisible = true;
-            _properties.fSourceClientAreaOnly = true;
+            _handle = DWM_NATIVE_METHODS.DwmRegisterThumbnail(destination, source);
+        }
+        catch (ArgumentException)
+        {
+            // Handle case when source client is already closed
+            _handle = nint.Zero;
+        }
+        catch (COMException)
+        {
+            // Handle case when DWM becomes unavailable
+            _handle = nint.Zero;
+        }
+    }
 
-            if (!_windowManager.IsCompositionEnabled)
-            {
-                return;
-            }
-
-            try
-            {
-                _handle = DWM_NATIVE_METHODS.DwmRegisterThumbnail(destination, source);
-            }
-            catch (ArgumentException)
-            {
-                // This exception is raised if the source client is already closed
-                // Can happen on a really slow CPU's that the window is still being
-                // listed in the process list yet it already cannot be used as
-                // a thumbnail source
-                _handle = IntPtr.Zero;
-            }
-            catch (COMException)
-            {
-                // This exception is raised if DWM is suddenly not available
-                // (f.e. when switching between Windows user accounts)
-                _handle = IntPtr.Zero;
-            }
+    public void Unregister()
+    {
+        if (!_windowManager.IsCompositionEnabled || _handle == nint.Zero)
+        {
+            return;
         }
 
-        public void Unregister()
+        try
         {
-            if ((!_windowManager.IsCompositionEnabled) || (_handle == IntPtr.Zero))
-            {
-                return;
-            }
+            DWM_NATIVE_METHODS.DwmUnregisterThumbnail(_handle);
+        }
+        catch (ArgumentException)
+        {
+            // Handle ArgumentException, but no need to rethrow
+        }
+        catch (COMException)
+        {
+            // Handle COMException when DWM becomes unavailable
+        }
+    }
 
-            try
-            {
-                DWM_NATIVE_METHODS.DwmUnregisterThumbnail(_handle);
-            }
-            catch (ArgumentException)
-            {
-            }
-            catch (COMException)
-            {
-                // This exception is raised when DWM is not available for some reason
-            }
+    public void Move(int left, int top, int right, int bottom)
+    {
+        _properties.rcDestination = new RECT(left, top, right, bottom);
+    }
+
+    public void Update()
+    {
+        if (!_windowManager.IsCompositionEnabled || _handle == nint.Zero)
+        {
+            return;
         }
 
-        public void Move(int left, int top, int right, int bottom)
+        try
         {
-            _properties.rcDestination = new RECT(left, top, right, bottom);
+            DWM_NATIVE_METHODS.DwmUpdateThumbnailProperties(_handle, _properties);
         }
-
-        public void Update()
+        catch (ArgumentException)
         {
-            if ((!_windowManager.IsCompositionEnabled) || (_handle == IntPtr.Zero))
-            {
-                return;
-            }
-
-            try
-            {
-                DWM_NATIVE_METHODS.DwmUpdateThumbnailProperties(_handle, _properties);
-            }
-            catch (ArgumentException)
-            {
-                // This exception will be thrown if the EVE client disappears while this method is running
-            }
-            catch (COMException)
-            {
-                // This exception is raised when DWM is not available for some reason
-            }
+            // Handle case when the EVE client disappears while this method runs
+        }
+        catch (COMException)
+        {
+            // Handle case when DWM becomes unavailable
         }
     }
 }

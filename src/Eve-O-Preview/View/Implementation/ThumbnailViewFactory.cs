@@ -17,7 +17,7 @@ namespace EveOPreview.View.Implementation
 			_isCompatibilityModeEnabled = configuration.EnableCompatibilityMode;
 		}
 
-		public IThumbnailView Create(IntPtr id, string title, Size size)
+		public IThumbnailView Create(nint id, string title, Size size)
 		{
 			IThumbnailView view = _isCompatibilityModeEnabled
 				? new StaticThumbnailView(_windowManager)

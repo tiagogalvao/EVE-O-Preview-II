@@ -25,7 +25,7 @@ namespace EveOPreview.Hotkey
         /// <param name="modifiers">Modifier keys (ALT, CONTROL, SHIFT, WIN).</param>
         /// <param name="vk">Virtual-key code for the hotkey.</param>
         /// <returns>True if registration succeeded, otherwise false.</returns>
-        public static bool RegisterHotKey(IntPtr hWnd, int id, uint modifiers, uint vk)
+        public static bool RegisterHotKey(nint hWnd, int id, uint modifiers, uint vk)
         {
             return NativeMethods.RegisterHotKey(hWnd, id, modifiers, vk);
         }
@@ -36,7 +36,7 @@ namespace EveOPreview.Hotkey
         /// <param name="hWnd">Handle to the window that registered the hotkey.</param>
         /// <param name="id">ID of the hotkey to unregister.</param>
         /// <returns>True if unregistration succeeded, otherwise false.</returns>
-        public static bool UnregisterHotKey(IntPtr hWnd, int id)
+        public static bool UnregisterHotKey(nint hWnd, int id)
         {
             return NativeMethods.UnregisterHotKey(hWnd, id);
         }
@@ -46,11 +46,11 @@ namespace EveOPreview.Hotkey
         {
             // Registers a system-wide hotkey (Windows-specific)
             [DllImport("user32.dll")]
-            public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+            public static extern bool RegisterHotKey(nint hWnd, int id, uint fsModifiers, uint vk);
 
             // Unregisters a system-wide hotkey (Windows-specific)
             [DllImport("user32.dll")]
-            public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+            public static extern bool UnregisterHotKey(nint hWnd, int id);
         }
     }
 }

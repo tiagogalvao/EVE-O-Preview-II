@@ -77,7 +77,7 @@ namespace EveOPreview.View.Implementation
 
         protected IWindowManager WindowManager { get; }
 
-        public IntPtr Id { get; set; }
+        public nint Id { get; set; }
 
         public string Title
         {
@@ -109,17 +109,17 @@ namespace EveOPreview.View.Implementation
             set => ClientSize = value;
         }
 
-        public Action<IntPtr> ThumbnailResized { get; set; }
+        public Action<nint> ThumbnailResized { get; set; }
 
-        public Action<IntPtr> ThumbnailMoved { get; set; }
+        public Action<nint> ThumbnailMoved { get; set; }
 
-        public Action<IntPtr> ThumbnailFocused { get; set; }
+        public Action<nint> ThumbnailFocused { get; set; }
 
-        public Action<IntPtr> ThumbnailLostFocus { get; set; }
+        public Action<nint> ThumbnailLostFocus { get; set; }
 
-        public Action<IntPtr> ThumbnailActivated { get; set; }
+        public Action<nint> ThumbnailActivated { get; set; }
 
-        public Action<IntPtr, bool> ThumbnailDeactivated { get; set; }
+        public Action<nint, bool> ThumbnailDeactivated { get; set; }
 
         public new void Show()
         {
@@ -156,7 +156,7 @@ namespace EveOPreview.View.Implementation
         }
 
         // This method is used to determine if the provided Handle is related to client or its thumbnail
-        public bool IsKnownHandle(IntPtr handle)
+        public bool IsKnownHandle(nint handle)
         {
             return (Id == handle) || (Handle == handle) || (_overlay.Handle == handle);
         }

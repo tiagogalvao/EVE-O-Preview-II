@@ -12,7 +12,7 @@ namespace EveOPreview.View.Implementation
 
             if (m.Msg == WM_NCHITTEST)
             {
-                m.Result = (IntPtr)HTTRANSPARENT;
+                m.Result = (nint)HTTRANSPARENT;
             }
             else
             {

@@ -10,14 +10,14 @@ namespace EveOPreview.Hotkey
         private const int MAX_ID = 0xBFFF;
 
         private readonly int _hotkeyId;
-        private readonly IntPtr _hotkeyTarget;
+        private readonly nint _hotkeyTarget;
 
         public event HandledEventHandler Pressed;
         
         public bool IsRegistered { get; private set; }
         public Keys KeyCode { get; private set; }
 
-        public HotkeyHandler(IntPtr target, Keys hotkey)
+        public HotkeyHandler(nint target, Keys hotkey)
         {
             if (hotkey == Keys.None)
                 throw new ArgumentException("Error: Trying to use empty configuration for key.", nameof(hotkey));

@@ -7,15 +7,15 @@ namespace EveOPreview.Services.Interface
     {
         bool IsCompositionEnabled { get; }
 
-        IntPtr GetForegroundWindowHandle();
-        void ActivateWindow(IntPtr handle);
-        void MinimizeWindow(IntPtr handle, bool enableAnimation);
-        void MoveWindow(IntPtr handle, int left, int top, int width, int height);
-        void MaximizeWindow(IntPtr handle);
-        (int Left, int Top, int Right, int Bottom) GetWindowPosition(IntPtr handle);
-        bool IsWindowMaximized(IntPtr handle);
-        bool IsWindowMinimized(IntPtr handle);
-        IDwmThumbnail GetLiveThumbnail(IntPtr destination, IntPtr source);
-        Image GetStaticThumbnail(IntPtr source);
+        nint GetForegroundWindowHandle();
+        void ActivateWindow(nint handle);
+        void MinimizeWindow(nint handle, bool enableAnimation);
+        void MoveWindow(nint handle, int left, int top, int width, int height);
+        void MaximizeWindow(nint handle);
+        (int Left, int Top, int Right, int Bottom) GetWindowPosition(nint handle);
+        bool IsWindowMaximized(nint handle);
+        bool IsWindowMinimized(nint handle);
+        IDwmThumbnail GetLiveThumbnail(nint destination, nint source);
+        Image GetStaticThumbnail(nint source);
     }
 }

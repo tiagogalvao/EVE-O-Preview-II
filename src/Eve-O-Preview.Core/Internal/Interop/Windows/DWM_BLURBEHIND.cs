@@ -6,7 +6,7 @@ namespace EveOPreview.Core.Internal.Interop.Windows
     public class DWM_BLURBEHIND
     {
         public uint dwFlags;
-        public IntPtr hRegionBlur;
+        public nint hRegionBlur;
         
         [MarshalAs(UnmanagedType.Bool)] 
         public bool fEnable;

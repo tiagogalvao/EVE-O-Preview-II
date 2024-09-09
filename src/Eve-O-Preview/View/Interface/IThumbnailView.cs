@@ -8,7 +8,7 @@ namespace EveOPreview.View.Interface
 {
     public interface IThumbnailView : IView
     {
-        IntPtr Id { get; set; }
+        nint Id { get; set; }
         string Title { get; set; }
 
         bool IsActive { get; set; }
@@ -16,7 +16,7 @@ namespace EveOPreview.View.Interface
         Size ThumbnailSize { get; set; }
         bool IsOverlayEnabled { get; set; }
 
-        bool IsKnownHandle(IntPtr handle);
+        bool IsKnownHandle(nint handle);
 
         void SetSizeLimitations(Size minimumSize, Size maximumSize);
         void SetOpacity(double opacity);
@@ -32,12 +32,12 @@ namespace EveOPreview.View.Interface
 
         void Refresh(bool forceRefresh);
 
-        Action<IntPtr> ThumbnailResized { get; set; }
-        Action<IntPtr> ThumbnailMoved { get; set; }
-        Action<IntPtr> ThumbnailFocused { get; set; }
-        Action<IntPtr> ThumbnailLostFocus { get; set; }
+        Action<nint> ThumbnailResized { get; set; }
+        Action<nint> ThumbnailMoved { get; set; }
+        Action<nint> ThumbnailFocused { get; set; }
+        Action<nint> ThumbnailLostFocus { get; set; }
 
-        Action<IntPtr> ThumbnailActivated { get; set; }
-        Action<IntPtr, bool> ThumbnailDeactivated { get; set; }
+        Action<nint> ThumbnailActivated { get; set; }
+        Action<nint, bool> ThumbnailDeactivated { get; set; }
     }
 }

@@ -4,7 +4,7 @@ namespace EveOPreview.Services.Interface
 {
 	public interface IProcessInfo
 	{
-		IntPtr Handle { get; }
+		nint Handle { get; }
 		string Title { get; }
 	}
 }

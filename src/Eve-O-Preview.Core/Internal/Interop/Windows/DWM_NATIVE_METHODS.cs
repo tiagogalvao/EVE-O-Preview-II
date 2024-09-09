@@ -6,10 +6,10 @@ namespace EveOPreview.Core.Internal.Interop.Windows
     public static class DWM_NATIVE_METHODS
     {
         [DllImport("dwmapi.dll", PreserveSig = false)]
-        public static extern void DwmEnableBlurBehindWindow(IntPtr hWnd, DWM_BLURBEHIND pBlurBehind);
+        public static extern void DwmEnableBlurBehindWindow(nint hWnd, DWM_BLURBEHIND pBlurBehind);
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
-        public static extern void DwmExtendFrameIntoClientArea(IntPtr hWnd, MARGINS pMargins);
+        public static extern void DwmExtendFrameIntoClientArea(nint hWnd, MARGINS pMargins);
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
         public static extern bool DwmIsCompositionEnabled();
@@ -21,15 +21,15 @@ namespace EveOPreview.Core.Internal.Interop.Windows
         public static extern void DwmEnableComposition(bool bEnable);
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
-        public static extern IntPtr DwmRegisterThumbnail(IntPtr dest, IntPtr source);
+        public static extern nint DwmRegisterThumbnail(nint dest, nint source);
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
-        public static extern void DwmUnregisterThumbnail(IntPtr hThumbnail);
+        public static extern void DwmUnregisterThumbnail(nint hThumbnail);
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
-        public static extern void DwmUpdateThumbnailProperties(IntPtr hThumbnail, DWM_THUMBNAIL_PROPERTIES props);
+        public static extern void DwmUpdateThumbnailProperties(nint hThumbnail, DWM_THUMBNAIL_PROPERTIES props);
 
         [DllImport("dwmapi.dll", PreserveSig = false)]
-        public static extern void DwmQueryThumbnailSourceSize(IntPtr hThumbnail, out Size size);
+        public static extern void DwmQueryThumbnailSourceSize(nint hThumbnail, out Size size);
     }
 }
