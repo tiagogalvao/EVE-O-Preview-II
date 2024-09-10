@@ -21,7 +21,7 @@ namespace EveOPreview.Presenters.Implementation
     {
         #region Private constants
 
-        private static readonly string Version = "7.1.2-alpha";
+        private static readonly string Version = "7.1.3-alpha";
         private static readonly Uri ForumUrl = new("https://forums.eveonline.com/t/eve-o-preview-v5-1-2-fork-multi-client-preview-switcher-2022-05-09-limited-linux-support/361804");
 
         #endregion
