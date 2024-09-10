@@ -9,15 +9,19 @@ namespace EveOPreview.Configuration.Implementation
 {
     internal sealed class ThumbnailConfiguration : IThumbnailConfiguration
     {
-        #region Private Fields
+        // Constants
+        private const int DEFAULT_THUMBNAIL_WIDTH = 384;
+        private const int DEFAULT_THUMBNAIL_HEIGHT = 216;
+        private const int MIN_THUMBNAIL_WIDTH = 192;
+        private const int MIN_THUMBNAIL_HEIGHT = 108;
+        private const int MAX_THUMBNAIL_WIDTH = 960;
+        private const int MAX_THUMBNAIL_HEIGHT = 540;
 
+        // Fields
         private bool _enablePerClientThumbnailLayouts;
         private bool _enableClientLayoutTracking;
 
-        #endregion
-
-        #region Constructor
-
+        // Constructor
         public ThumbnailConfiguration()
         {
             PerClientLayout = new Dictionary<string, Dictionary<string, Point>>();
@@ -29,7 +33,6 @@ namespace EveOPreview.Configuration.Implementation
 
             MinimizeToTray = false;
             ThumbnailRefreshPeriod = 500;
-
             EnableCompatibilityMode = false;
             ThumbnailOpacity = 0.5;
             EnableClientLayoutTracking = false;
@@ -39,115 +42,80 @@ namespace EveOPreview.Configuration.Implementation
             EnablePerClientThumbnailLayouts = false;
             HideThumbnailsOnLostFocus = false;
             HideThumbnailsDelay = 2; // 2 refresh cycles (1.0 sec)
-
-            ThumbnailSize = new Size(384, 216);
-            ThumbnailMinimumSize = new Size(192, 108);
-            ThumbnailMaximumSize = new Size(960, 540);
+            ThumbnailSize = new Size(DEFAULT_THUMBNAIL_WIDTH, DEFAULT_THUMBNAIL_HEIGHT);
+            ThumbnailMinimumSize = new Size(MIN_THUMBNAIL_WIDTH, MIN_THUMBNAIL_HEIGHT);
+            ThumbnailMaximumSize = new Size(MAX_THUMBNAIL_WIDTH, MAX_THUMBNAIL_HEIGHT);
             ThumbnailFontSize = 8;
-
             EnableThumbnailSnap = true;
             ThumbnailZoomEnabled = false;
             ThumbnailZoomFactor = 2;
             ThumbnailZoomAnchor = ZoomAnchor.NW;
-
             ShowThumbnailOverlays = true;
             ShowThumbnailFrames = false;
-
             EnableActiveClientHighlight = false;
             ActiveClientHighlightColor = Color.GreenYellow;
             ActiveClientHighlightThickness = 3;
         }
 
-        #endregion
-
-        #region Properties
-
+        // Properties
         public bool MinimizeToTray { get; set; }
         public int ThumbnailRefreshPeriod { get; set; }
-
-        [JsonProperty("CompatibilityMode")] public bool EnableCompatibilityMode { get; set; }
-
-        [JsonProperty("ThumbnailsOpacity")] public double ThumbnailOpacity { get; set; }
-
+        [JsonProperty("CompatibilityMode")]
+        public bool EnableCompatibilityMode { get; set; }
+        [JsonProperty("ThumbnailsOpacity")]
+        public double ThumbnailOpacity { get; set; }
         public bool EnableClientLayoutTracking
         {
             get => _enableClientLayoutTracking;
             set
             {
-                if (!value)
-                {
-                    ClientLayout.Clear();
-                }
-
+                if (!value) ClientLayout.Clear();
                 _enableClientLayoutTracking = value;
             }
         }
-
         public bool HideActiveClientThumbnail { get; set; }
         public bool MinimizeInactiveClients { get; set; }
         public bool ShowThumbnailsAlwaysOnTop { get; set; }
-
         public bool EnablePerClientThumbnailLayouts
         {
             get => _enablePerClientThumbnailLayouts;
             set
             {
-                if (!value)
-                {
-                    PerClientLayout.Clear();
-                }
-
+                if (!value) PerClientLayout.Clear();
                 _enablePerClientThumbnailLayouts = value;
             }
         }
-
         public bool HideThumbnailsOnLostFocus { get; set; }
         public int HideThumbnailsDelay { get; set; }
-
         public Size ThumbnailSize { get; set; }
         public Size ThumbnailMaximumSize { get; set; }
         public Size ThumbnailMinimumSize { get; set; }
-
         public bool EnableThumbnailSnap { get; set; }
-
-        [JsonProperty("EnableThumbnailZoom")] public bool ThumbnailZoomEnabled { get; set; }
-
+        [JsonProperty("EnableThumbnailZoom")]
+        public bool ThumbnailZoomEnabled { get; set; }
         public int ThumbnailZoomFactor { get; set; }
         public float ThumbnailFontSize { get; set; }
         public ZoomAnchor ThumbnailZoomAnchor { get; set; }
-
         public bool ShowThumbnailOverlays { get; set; }
         public bool ShowThumbnailFrames { get; set; }
-
         public bool EnableActiveClientHighlight { get; set; }
-
         public Color ActiveClientHighlightColor { get; set; }
-
         public int ActiveClientHighlightThickness { get; set; }
+        [JsonProperty]
+        private Dictionary<string, Dictionary<string, Point>> PerClientLayout { get; set; }
+        [JsonProperty]
+        private Dictionary<string, Point> FlatLayout { get; set; }
+        [JsonProperty]
+        private Dictionary<string, Core.Model.Client.Layout> ClientLayout { get; set; }
+        [JsonProperty]
+        private Dictionary<string, string> ClientHotkey { get; set; }
+        [JsonProperty]
+        private Dictionary<string, bool> DisableThumbnail { get; set; }
+        [JsonProperty]
+        private List<string> PriorityClients { get; set; }
 
-        [JsonProperty] private Dictionary<string, Dictionary<string, Point>> PerClientLayout { get; set; }
-
-        [JsonProperty] private Dictionary<string, Point> FlatLayout { get; set; }
-
-        [JsonProperty] private Dictionary<string, Core.Model.Client.Layout> ClientLayout { get; set; }
-
-        [JsonProperty] private Dictionary<string, string> ClientHotkey { get; set; }
-
-        [JsonProperty] private Dictionary<string, bool> DisableThumbnail { get; set; }
-
-        [JsonProperty] private List<string> PriorityClients { get; set; }
-
-        #endregion
-
-        #region Methods
-
-        public Point GetDefaultThumbnailLocation()
-        {
-            // Returns the default thumbnail location
-            // This location can be used for clients sitting on the login screen
-            // Configurable in the future
-            return new Point(5, 5);
-        }
+        // Methods
+        public Point GetDefaultThumbnailLocation() => new Point(5, 5);
 
         public Point GetThumbnailLocation(string currentClient, string activeClient, Point defaultLocation)
         {
@@ -172,7 +140,6 @@ namespace EveOPreview.Configuration.Implementation
                     layoutSource = new Dictionary<string, Point>();
                     PerClientLayout[activeClient] = layoutSource;
                 }
-
                 layoutSource[currentClient] = location;
             }
             else
@@ -181,50 +148,33 @@ namespace EveOPreview.Configuration.Implementation
             }
         }
 
-        public Core.Model.Client.Layout GetClientLayout(string currentClient)
-        {
-            return ClientLayout.TryGetValue(currentClient, out var layout) ? layout : null;
-        }
+        public Core.Model.Client.Layout GetClientLayout(string currentClient) =>
+            ClientLayout.TryGetValue(currentClient, out var layout) ? layout : null;
 
-        public void SetClientLayout(string currentClient, Core.Model.Client.Layout layout)
-        {
+        public void SetClientLayout(string currentClient, Core.Model.Client.Layout layout) =>
             ClientLayout[currentClient] = layout;
-        }
 
         public Keys GetClientHotkey(string currentClient)
         {
             if (ClientHotkey.TryGetValue(currentClient, out var hotkey))
             {
-                var rawValue = (new KeysConverter()).ConvertFromInvariantString(hotkey);
+                var rawValue = new KeysConverter().ConvertFromInvariantString(hotkey);
                 return rawValue is Keys key ? key : Keys.None;
             }
-
             return Keys.None;
         }
 
-        public void SetClientHotkey(string currentClient, Keys hotkey)
-        {
-            ClientHotkey[currentClient] = (new KeysConverter()).ConvertToInvariantString(hotkey);
-        }
+        public void SetClientHotkey(string currentClient, Keys hotkey) =>
+            ClientHotkey[currentClient] = new KeysConverter().ConvertToInvariantString(hotkey);
 
-        public bool IsPriorityClient(string currentClient)
-        {
-            return PriorityClients.Contains(currentClient);
-        }
+        public bool IsPriorityClient(string currentClient) => PriorityClients.Contains(currentClient);
 
-        public bool IsThumbnailDisabled(string currentClient)
-        {
-            return DisableThumbnail.TryGetValue(currentClient, out var isDisabled) && isDisabled;
-        }
+        public bool IsThumbnailDisabled(string currentClient) =>
+            DisableThumbnail.TryGetValue(currentClient, out var isDisabled) && isDisabled;
 
-        public void ToggleThumbnail(string currentClient, bool isDisabled)
-        {
+        public void ToggleThumbnail(string currentClient, bool isDisabled) =>
             DisableThumbnail[currentClient] = isDisabled;
-        }
 
-        /// <summary>
-        /// Applies restrictions to configuration parameters
-        /// </summary>
         public void ApplyRestrictions()
         {
             ThumbnailRefreshPeriod = ApplyRestrictions(ThumbnailRefreshPeriod, 300, 1000);
@@ -237,13 +187,7 @@ namespace EveOPreview.Configuration.Implementation
             ActiveClientHighlightThickness = ApplyRestrictions(ActiveClientHighlightThickness, 1, 6);
         }
 
-        private static int ApplyRestrictions(int value, int minimum, int maximum)
-        {
-            if (value < minimum) return minimum;
-            if (value > maximum) return maximum;
-            return value;
-        }
-
-        #endregion
+        private static int ApplyRestrictions(int value, int minimum, int maximum) =>
+            value < minimum ? minimum : value > maximum ? maximum : value;
     }
 }

@@ -6,11 +6,7 @@ namespace EveOPreview.View.Implementation
 {
     internal sealed class StaticThumbnailView : ThumbnailView
     {
-        #region Private fields
-
         private readonly PictureBox _thumbnail;
-
-        #endregion
 
         public StaticThumbnailView(IWindowManager windowManager) : base(windowManager)
         {
@@ -26,13 +22,10 @@ namespace EveOPreview.View.Implementation
 
         protected override void RefreshThumbnail(bool forceRefresh)
         {
-            if (!forceRefresh)
-            {
-                return;
-            }
+            if (!forceRefresh) return;
 
             var thumbnail = WindowManager.GetStaticThumbnail(Id);
-            if (thumbnail != null)
+            if (thumbnail is not null)
             {
                 var oldImage = _thumbnail.Image;
                 _thumbnail.Image = thumbnail;
@@ -42,29 +35,23 @@ namespace EveOPreview.View.Implementation
 
         protected override void ResizeThumbnail(int baseWidth, int baseHeight, int highlightWidthTop, int highlightWidthRight, int highlightWidthBottom, int highlightWidthLeft)
         {
-            var left = 0 + highlightWidthLeft;
-            var top = 0 + highlightWidthTop;
+            var left = highlightWidthLeft;
+            var top = highlightWidthTop;
+
             if (IsLocationUpdateRequired(_thumbnail.Location, left, top))
-            {
                 _thumbnail.Location = new Point(left, top);
-            }
 
             var width = baseWidth - highlightWidthLeft - highlightWidthRight;
             var height = baseHeight - highlightWidthTop - highlightWidthBottom;
+
             if (IsSizeUpdateRequired(_thumbnail.Size, width, height))
-            {
                 _thumbnail.Size = new Size(width, height);
-            }
         }
 
-        private bool IsLocationUpdateRequired(Point currentLocation, int left, int top)
-        {
-            return (currentLocation.X != left) || (currentLocation.Y != top);
-        }
+        private bool IsLocationUpdateRequired(Point currentLocation, int left, int top) =>
+            currentLocation.X != left || currentLocation.Y != top;
 
-        private bool IsSizeUpdateRequired(Size currentSize, int width, int height)
-        {
-            return (currentSize.Width != width) || (currentSize.Height != height);
-        }
+        private bool IsSizeUpdateRequired(Size currentSize, int width, int height) =>
+            currentSize.Width != width || currentSize.Height != height;
     }
 }

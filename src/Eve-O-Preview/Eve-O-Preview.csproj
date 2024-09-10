@@ -109,4 +109,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Eve-O-Preview.Core\Eve-O-Preview.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Eve-O-Preview.Core">
+      <HintPath>..\bin\net8.0-windows\Eve-O-Preview.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

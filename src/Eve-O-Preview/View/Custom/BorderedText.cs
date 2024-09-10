@@ -10,11 +10,14 @@ public class BorderedLabel : Label
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        // Ensure the base class paint logic is executed
+        base.OnPaint(e);
+
         // Measure the size of the text
         SizeF textSize = e.Graphics.MeasureString(Text, Font);
 
         // Create a rectangle slightly larger than the text size
-        RectangleF rect = new RectangleF(0, 0, textSize.Width-1, textSize.Height-1);
+        RectangleF rect = new RectangleF(0, 0, textSize.Width - 1, textSize.Height - 1);
 
         // Draw the rectangle (use any color you like for the background)
         using (Brush backgroundBrush = new SolidBrush(Color.FromArgb(255, 1, 1, 1)))

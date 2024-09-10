@@ -8,52 +8,52 @@ namespace EveOPreview.View.Implementation
         #region Private fields
 
         private IDwmThumbnail _thumbnail;
-        private Point _startLocation;
-        private Point _endLocation;
+        private Rectangle _thumbnailRect;
 
         #endregion
 
         public LiveThumbnailView(IWindowManager windowManager) : base(windowManager)
         {
-            _startLocation = new Point(0, 0);
-            _endLocation = new Point(ClientSize);
+            _thumbnailRect = new Rectangle(Point.Empty, ClientSize);
         }
 
         protected override void RefreshThumbnail(bool forceRefresh)
         {
-            // To prevent flickering the old broken thumbnail is removed AFTER the new shiny one is created
-            IDwmThumbnail obsoleteThumbnail = forceRefresh ? _thumbnail : null;
-            if ((_thumbnail == null) || forceRefresh)
+            // Remove the old thumbnail only if it's being replaced or refreshed
+            if (_thumbnail != null && !forceRefresh)
             {
-                RegisterThumbnail();
+                return;
             }
 
-            obsoleteThumbnail?.Unregister();
+            // Register a new thumbnail
+            RegisterThumbnail();
         }
 
         protected override void ResizeThumbnail(int baseWidth, int baseHeight, int highlightWidthTop, int highlightWidthRight, int highlightWidthBottom, int highlightWidthLeft)
         {
-            var left = 0 + highlightWidthLeft;
-            var top = 0 + highlightWidthTop;
-            var right = baseWidth - highlightWidthRight;
-            var bottom = baseHeight - highlightWidthBottom;
-
-            if ((_startLocation.X == left) && (_startLocation.Y == top) && (_endLocation.X == right) && (_endLocation.Y == bottom))
+            var newRect = new Rectangle(highlightWidthLeft, highlightWidthTop, baseWidth - highlightWidthLeft - highlightWidthRight, baseHeight - highlightWidthTop - highlightWidthBottom);
+            if (_thumbnailRect.Equals(newRect))
             {
                 return; // No update required
             }
 
-            _startLocation = new Point(left, top);
-            _endLocation = new Point(right, bottom);
-
-            _thumbnail.Move(left, top, right, bottom);
+            _thumbnailRect = newRect;
+            _thumbnail.Move(newRect.X, newRect.Y, newRect.Right, newRect.Bottom);
             _thumbnail.Update();
         }
 
         private void RegisterThumbnail()
         {
+            _thumbnail?.Unregister(); // Ensure the previous thumbnail is unregistered
+
             _thumbnail = WindowManager.GetLiveThumbnail(Handle, Id);
-            _thumbnail.Move(_startLocation.X, _startLocation.Y, _endLocation.X, _endLocation.Y);
+            if (_thumbnail == null)
+            {
+                // Handle the case where the thumbnail could not be created
+                return;
+            }
+
+            _thumbnail.Move(_thumbnailRect.X, _thumbnailRect.Y, _thumbnailRect.Right, _thumbnailRect.Bottom);
             _thumbnail.Update();
         }
     }
