@@ -77,8 +77,10 @@ namespace EveOPreview.View.Implementation
 
         protected IWindowManager WindowManager { get; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public nint Id { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string Title
         {
             get => Text;
@@ -89,10 +91,13 @@ namespace EveOPreview.View.Implementation
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsActive { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsOverlayEnabled { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Point ThumbnailLocation
         {
             get => Location;
@@ -103,22 +108,29 @@ namespace EveOPreview.View.Implementation
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Size ThumbnailSize
         {
             get => ClientSize;
             set => ClientSize = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<nint> ThumbnailResized { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<nint> ThumbnailMoved { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<nint> ThumbnailFocused { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<nint> ThumbnailLostFocus { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<nint> ThumbnailActivated { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action<nint, bool> ThumbnailDeactivated { get; set; }
 
         public new void Show()

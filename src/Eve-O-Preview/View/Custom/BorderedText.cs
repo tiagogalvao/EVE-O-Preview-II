@@ -1,12 +1,14 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace EveOPreview.View.Custom;
 
 public class BorderedLabel : Label
 {
-    // Background color for the rectangle
-    public Color BackgroundFillColor { get; set; } = Color.Black;
+    // // Background color for the rectangle
+    // [DefaultValue(typeof(Color),  "Black")]
+    // public Color BackgroundFillColor { get; set; } = Color.Black;
 
     protected override void OnPaint(PaintEventArgs e)
     {
