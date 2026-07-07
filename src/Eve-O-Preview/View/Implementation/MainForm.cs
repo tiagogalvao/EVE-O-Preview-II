@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -40,12 +41,14 @@ namespace EveOPreview.View.Implementation
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool MinimizeToTray
         {
             get => MinimizeToTrayCheckBox.Checked;
             set => MinimizeToTrayCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public double ThumbnailOpacity
         {
             get => Math.Min(ThumbnailOpacityTrackBar.Value / 100.00, 1.00);
@@ -65,42 +68,49 @@ namespace EveOPreview.View.Implementation
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool EnableClientLayoutTracking
         {
             get => EnableClientLayoutTrackingCheckBox.Checked;
             set => EnableClientLayoutTrackingCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool HideActiveClientThumbnail
         {
             get => HideActiveClientThumbnailCheckBox.Checked;
             set => HideActiveClientThumbnailCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool MinimizeInactiveClients
         {
             get => MinimizeInactiveClientsCheckBox.Checked;
             set => MinimizeInactiveClientsCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowThumbnailsAlwaysOnTop
         {
             get => ShowThumbnailsAlwaysOnTopCheckBox.Checked;
             set => ShowThumbnailsAlwaysOnTopCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool HideThumbnailsOnLostFocus
         {
             get => HideThumbnailsOnLostFocusCheckBox.Checked;
             set => HideThumbnailsOnLostFocusCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool EnablePerClientThumbnailLayouts
         {
             get => EnablePerClientThumbnailsLayoutsCheckBox.Checked;
             set => EnablePerClientThumbnailsLayoutsCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Size ThumbnailSize
         {
             get => new Size((int)ThumbnailsWidthNumericEdit.Value, (int)ThumbnailsHeightNumericEdit.Value);
@@ -111,12 +121,14 @@ namespace EveOPreview.View.Implementation
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float ThumbnailFontSize
         {
             get => (float)ThumbnailsFontSizeNumericEdit.Value;
             set => ThumbnailsFontSizeNumericEdit.Value = (decimal)value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool EnableThumbnailZoom
         {
             get => EnableThumbnailZoomCheckBox.Checked;
@@ -127,12 +139,14 @@ namespace EveOPreview.View.Implementation
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int ThumbnailZoomFactor
         {
             get => (int)ThumbnailZoomFactorNumericEdit.Value;
             set => ThumbnailZoomFactorNumericEdit.Value = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ZoomAnchor ThumbnailZoomAnchor
         {
             get
@@ -163,24 +177,28 @@ namespace EveOPreview.View.Implementation
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowThumbnailOverlays
         {
             get => ShowThumbnailOverlaysCheckBox.Checked;
             set => ShowThumbnailOverlaysCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowThumbnailFrames
         {
             get => ShowThumbnailFramesCheckBox.Checked;
             set => ShowThumbnailFramesCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool EnableActiveClientHighlight
         {
             get => EnableActiveClientHighlightCheckBox.Checked;
             set => EnableActiveClientHighlightCheckBox.Checked = value;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color ActiveClientHighlightColor
         {
             get => _activeClientHighlightColor;
@@ -261,13 +279,28 @@ namespace EveOPreview.View.Implementation
             BringToFront();
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action ApplicationExitRequested { get; set; }
+        
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action FormActivated { get; set; }
+        
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action FormMinimized { get; set; }
+        
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Func<ViewCloseRequest, Task> FormCloseRequested { get; set; }
+        
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Func<Task> ApplicationSettingsChanged { get; set; }
+        
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Func<Task> ThumbnailsSizeChanged { get; set; }
+        
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Func<string, Task> ThumbnailStateChanged { get; set; }
+        
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Action DocumentationLinkActivated { get; set; }
 
         #region UI events
