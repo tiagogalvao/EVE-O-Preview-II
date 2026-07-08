@@ -1,4 +1,5 @@
-﻿using Cake.Common.IO;
+﻿using System.Linq;
+using Cake.Common.IO;
 using Cake.Frosting;
 
 namespace Build.Tasks
@@ -14,7 +15,8 @@ namespace Build.Tasks
 			}
 
 			context.Zip(Configuration.BinFolder, Configuration.PublishFolder + "/EVE-O Preview.zip",
-				new[] { Configuration.BinFolder + "/EVE-O Preview.exe", Configuration.BinFolder + "/readme.pdf" });
+				context.GetFiles(Configuration.BinFolder + "/*")
+					.Where(f => f.GetExtension() != ".pdb"));
 		}
 	}
 }
