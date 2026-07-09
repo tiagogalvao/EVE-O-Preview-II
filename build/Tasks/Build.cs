@@ -1,5 +1,6 @@
 ﻿using Cake.Common.Diagnostics;
-using Cake.Common.Tools.MSBuild;
+using Cake.Common.Tools.DotNet;
+using Cake.Common.Tools.DotNet.Build;
 using Cake.Frosting;
 
 namespace Build.Tasks
@@ -10,15 +11,10 @@ namespace Build.Tasks
 		public override void Run(Context context)
 		{
 			context.Information("Build started...");
-			context.MSBuild(Configuration.SolutionName, settings =>
+			context.DotNetBuild(Configuration.SolutionName, new DotNetBuildSettings
 			{
-				settings.Configuration = Configuration.BuildConfiguration;
-				settings.ToolVersion = MSBuildToolVersion.Default;
-
-				if (!string.IsNullOrEmpty(Configuration.BuildToolPath))
-				{
-					settings.ToolPath = Configuration.BuildToolPath;
-				}
+				Configuration = Configuration.BuildConfiguration,
+				NoRestore = true,
 			});
 		}
 	}

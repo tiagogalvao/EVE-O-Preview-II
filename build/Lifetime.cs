@@ -9,8 +9,6 @@ namespace Build
 {
 	public class Lifetime : FrostingLifetime<Context>
 	{
-		private const string NuGetUrl = @"https://dist.nuget.org/win-x86-commandline/latest/nuget.exe";
-
 		private void DeleteDirectory(Context context, string directoryName)
 		{
 			if (!context.DirectoryExists(directoryName))
@@ -21,21 +19,6 @@ namespace Build
 			context.DeleteDirectory(directoryName, new DeleteDirectorySettings { Force = true, Recursive = true });
 		}
 
-		private void DownloadNuGet(Context context)
-		{
-			if (context.FileExists(Configuration.ToolsFolder + "/nuget.exe"))
-			{
-				return;
-			}
-
-			if (!context.DirectoryExists(Configuration.ToolsFolder))
-			{
-				context.CreateDirectory(Configuration.ToolsFolder);
-			}
-
-			var tempFile = context.DownloadFile(NuGetUrl);
-			context.CopyFile(tempFile, new FilePath(Configuration.ToolsFolder + "/nuget.exe"));
-		}
 
 		public override void Setup(Context context, ISetupContext info)
 		{
@@ -44,9 +27,6 @@ namespace Build
 			context.Information("Delete bin and publish folders");
 			DeleteDirectory(context, Configuration.BinFolder);
 			DeleteDirectory(context, Configuration.PublishFolder);
-
-			context.Information("Download NuGet");
-			DownloadNuGet(context);
 		}
 
 		public override void Teardown(Context context, ITeardownContext info)
