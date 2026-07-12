@@ -1,3 +1,31 @@
 {
-  "extends": ["config:recommended"]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":disableRateLimiting"
+  ],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "non-major dependencies",
+      "automerge": true
+    },
+    {
+      "matchDatasources": ["docker"],
+      "groupName": "docker images"
+    },
+    {
+      "matchManagers": ["nuget"],
+      "groupName": "dotnet dependencies"
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true
+  }
 }
