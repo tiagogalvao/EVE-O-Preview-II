@@ -27,9 +27,5 @@
   },
   "vulnerabilityAlerts": {
     "enabled": true
-  },
-  "postUpgradeTasks": {
-   "commands": ["npm i"],
-   "fileFilters": ["package.json"]
- }
+  }
 }
